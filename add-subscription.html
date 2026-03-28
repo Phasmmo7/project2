@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Subscription – SubSmart</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      padding: 24px 16px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px;
+      margin-bottom: 32px;
+    }
+
+    .sidebar-logo-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--accent-gradient);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .sidebar-logo h2 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      transition: all var(--transition-normal);
+    }
+
+    .nav-item:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background: var(--accent-gradient);
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .nav-item-icon {
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      padding: 32px;
+      min-height: 100vh;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .header-left h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .header-left p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .form-container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .form-card {
+      padding: 32px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .platform-select {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .platform-option {
+      padding: 16px 8px;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+    }
+
+    .platform-option:hover {
+      border-color: var(--accent-primary);
+      background: var(--bg-card);
+    }
+
+    .platform-option.selected {
+      border-color: var(--accent-primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .platform-option-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .platform-option-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .platform-option.selected .platform-option-name {
+      color: var(--accent-primary);
+    }
+
+    .cycle-toggle {
+      display: flex;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      margin-top: 8px;
+    }
+
+    .cycle-option {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-normal);
+      cursor: pointer;
+    }
+
+    .cycle-option.active {
+      background: var(--accent-gradient);
+      color: white;
+    }
+
+    .cost-display {
+      padding: 16px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+      margin-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cost-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .cost-value {
+      font-size: 24px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--accent-primary);
+    }
+
+    .type-select {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .type-option {
+      flex: 1;
+      padding: 14px;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+    }
+
+    .type-option:hover {
+      border-color: var(--accent-primary);
+    }
+
+    .type-option.selected {
+      border-color: var(--accent-primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .type-option-name {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .type-option.selected .type-option-name {
+      color: var(--accent-primary);
+    }
+
+    .type-option-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .payment-options {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .payment-option {
+      flex: 1;
+      padding: 14px;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+    }
+
+    .payment-option:hover {
+      border-color: var(--accent-primary);
+    }
+
+    .payment-option.selected {
+      border-color: var(--accent-primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .payment-option-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .payment-option-name {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .payment-option.selected .payment-option-name {
+      color: var(--accent-primary);
+    }
+
+    .auto-renew-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      margin-top: 8px;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: background var(--transition-normal);
+    }
+
+    .toggle-switch.active {
+      background: var(--accent-primary);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform var(--transition-normal);
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(22px);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .form-actions .btn {
+      flex: 1;
+    }
+
+    .success-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .success-overlay.show {
+      display: flex;
+    }
+
+    .success-content {
+      text-align: center;
+      animation: scaleIn 0.4s ease;
+    }
+
+    .success-icon {
+      width: 100px;
+      height: 100px;
+      background: var(--success);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 50px;
+      margin: 0 auto 24px;
+      animation: bounce 0.6s ease;
+    }
+
+    .success-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .success-text {
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    .bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      padding: 8px 0;
+      z-index: 100;
+    }
+
+    .bottom-nav-items {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 500;
+      transition: color var(--transition-fast);
+    }
+
+    .bottom-nav-item.active {
+      color: var(--accent-primary);
+    }
+
+    .bottom-nav-item-icon {
+      font-size: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+        padding-bottom: 80px;
+      }
+
+      .bottom-nav {
+        display: block;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .platform-select {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .payment-options {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">S</div>
+        <h2>SubSmart</h2>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item">
+          <span class="nav-item-icon">📊</span>
+          Dashboard
+        </a>
+        <a href="subscriptions.html" class="nav-item">
+          <span class="nav-item-icon">📋</span>
+          Subscriptions
+        </a>
+        <a href="add-subscription.html" class="nav-item active">
+          <span class="nav-item-icon">➕</span>
+          Add New
+        </a>
+        <a href="insights.html" class="nav-item">
+          <span class="nav-item-icon">🧠</span>
+          AI Insights
+        </a>
+        <a href="calendar.html" class="nav-item">
+          <span class="nav-item-icon">📅</span>
+          Calendar
+        </a>
+        <a href="settings.html" class="nav-item">
+          <span class="nav-item-icon">⚙️</span>
+          Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="settings.html" class="nav-item">
+          <span class="nav-item-icon">👤</span>
+          Profile
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <div class="header-left">
+          <h1>Add Subscription</h1>
+          <p>Track a new subscription service</p>
+        </div>
+      </header>
+
+      <div class="form-container">
+        <div class="form-card glass-card">
+          <form id="subscription-form">
+            <div class="input-group">
+              <label class="input-label">Platform</label>
+              <div class="platform-select" id="platform-select">
+                <div class="platform-option" data-platform="Netflix">
+                  <div class="platform-option-icon">🍿</div>
+                  <div class="platform-option-name">Netflix</div>
+                </div>
+                <div class="platform-option" data-platform="Prime">
+                  <div class="platform-option-icon">📦</div>
+                  <div class="platform-option-name">Prime</div>
+                </div>
+                <div class="platform-option" data-platform="Hotstar">
+                  <div class="platform-option-icon">⭐</div>
+                  <div class="platform-option-name">Hotstar</div>
+                </div>
+                <div class="platform-option" data-platform="Spotify">
+                  <div class="platform-option-icon">🎵</div>
+                  <div class="platform-option-name">Spotify</div>
+                </div>
+                <div class="platform-option" data-platform="YouTube Premium">
+                  <div class="platform-option-icon">▶️</div>
+                  <div class="platform-option-name">YouTube</div>
+                </div>
+              </div>
+              <input type="hidden" id="platform" required>
+            </div>
+
+            <div class="form-row">
+              <div class="input-group">
+                <label class="input-label">Cost (₹)</label>
+                <input type="number" class="input-field" id="cost" placeholder="499" min="0" required>
+              </div>
+
+              <div class="input-group">
+                <label class="input-label">Billing Cycle</label>
+                <div class="cycle-toggle" id="cycle-toggle">
+                  <div class="cycle-option active" data-cycle="monthly">Monthly</div>
+                  <div class="cycle-option" data-cycle="yearly">Yearly</div>
+                </div>
+                <input type="hidden" id="billing-cycle" value="monthly">
+              </div>
+            </div>
+
+            <div class="cost-display">
+              <span class="cost-label">Monthly Equivalent</span>
+              <span class="cost-value" id="monthly-equivalent">₹0</span>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Subscription Type</label>
+              <div class="type-select" id="type-select">
+                <div class="type-option selected" data-type="basic">
+                  <div class="type-option-name">Basic</div>
+                  <div class="type-option-desc">Standard features</div>
+                </div>
+                <div class="type-option" data-type="premium">
+                  <div class="type-option-name">Premium</div>
+                  <div class="type-option-desc">All features + 4K</div>
+                </div>
+              </div>
+              <input type="hidden" id="subscription-type" value="basic">
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Next Renewal Date</label>
+              <input type="date" class="input-field" id="next-renewal" required>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Payment Method</label>
+              <div class="payment-options" id="payment-options">
+                <div class="payment-option selected" data-method="upi">
+                  <div class="payment-option-icon">📱</div>
+                  <div class="payment-option-name">UPI</div>
+                </div>
+                <div class="payment-option" data-method="card">
+                  <div class="payment-option-icon">💳</div>
+                  <div class="payment-option-name">Card</div>
+                </div>
+                <div class="payment-option" data-method="wallet">
+                  <div class="payment-option-icon">👛</div>
+                  <div class="payment-option-name">Wallet</div>
+                </div>
+              </div>
+              <input type="hidden" id="payment-method" value="upi">
+            </div>
+
+            <div class="input-group">
+              <div class="auto-renew-toggle">
+                <div>
+                  <div class="text-base font-medium">Auto-Renew</div>
+                  <div class="text-sm text-secondary">Automatically renew subscription</div>
+                </div>
+                <div class="toggle-switch active" id="auto-renew-toggle"></div>
+              </div>
+              <input type="hidden" id="auto-renew" value="true">
+            </div>
+
+            <div class="form-actions">
+              <a href="subscriptions.html" class="btn btn-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary" id="submit-btn">
+                Add Subscription
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <nav class="bottom-nav">
+      <div class="bottom-nav-items">
+        <a href="dashboard.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">📊</span>
+          Dashboard
+        </a>
+        <a href="subscriptions.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">📋</span>
+          Subscriptions
+        </a>
+        <a href="add-subscription.html" class="bottom-nav-item active">
+          <span class="bottom-nav-item-icon">➕</span>
+          Add
+        </a>
+        <a href="insights.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">🧠</span>
+          Insights
+        </a>
+        <a href="settings.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">⚙️</span>
+          Settings
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <div class="success-overlay" id="success-overlay">
+    <div class="success-content">
+      <div class="success-icon">✓</div>
+      <h2 class="success-title">Subscription Added!</h2>
+      <p class="success-text">Your subscription has been added successfully</p>
+      <a href="subscriptions.html" class="btn btn-primary">View Subscriptions</a>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.requireAuth()) return;
+
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('next-renewal').min = today;
+      document.getElementById('next-renewal').value = today;
+
+      setupPlatformSelect();
+      setupCycleToggle();
+      setupTypeSelect();
+      setupPaymentOptions();
+      setupAutoRenewToggle();
+      setupCostCalculation();
+      setupFormSubmission();
+    });
+
+    function setupPlatformSelect() {
+      const options = document.querySelectorAll('.platform-option');
+      options.forEach(option => {
+        option.addEventListener('click', () => {
+          options.forEach(o => o.classList.remove('selected'));
+          option.classList.add('selected');
+          document.getElementById('platform').value = option.dataset.platform;
+        });
+      });
+      document.getElementById('platform').value = 'Netflix';
+      options[0].classList.add('selected');
+    }
+
+    function setupCycleToggle() {
+      const options = document.querySelectorAll('.cycle-option');
+      options.forEach(option => {
+        option.addEventListener('click', () => {
+          options.forEach(o => o.classList.remove('active'));
+          option.classList.add('active');
+          document.getElementById('billing-cycle').value = option.dataset.cycle;
+          calculateMonthlyEquivalent();
+        });
+      });
+    }
+
+    function setupTypeSelect() {
+      const options = document.querySelectorAll('.type-option');
+      options.forEach(option => {
+        option.addEventListener('click', () => {
+          options.forEach(o => o.classList.remove('selected'));
+          option.classList.add('selected');
+          document.getElementById('subscription-type').value = option.dataset.type;
+        });
+      });
+    }
+
+    function setupPaymentOptions() {
+      const options = document.querySelectorAll('.payment-option');
+      options.forEach(option => {
+        option.addEventListener('click', () => {
+          options.forEach(o => o.classList.remove('selected'));
+          option.classList.add('selected');
+          document.getElementById('payment-method').value = option.dataset.method;
+        });
+      });
+    }
+
+    function setupAutoRenewToggle() {
+      const toggle = document.getElementById('auto-renew-toggle');
+      toggle.addEventListener('click', () => {
+        toggle.classList.toggle('active');
+        document.getElementById('auto-renew').value = toggle.classList.contains('active').toString();
+      });
+    }
+
+    function setupCostCalculation() {
+      const costInput = document.getElementById('cost');
+      costInput.addEventListener('input', calculateMonthlyEquivalent);
+      calculateMonthlyEquivalent();
+    }
+
+    function calculateMonthlyEquivalent() {
+      const cost = parseFloat(document.getElementById('cost').value) || 0;
+      const cycle = document.getElementById('billing-cycle').value;
+      const monthly = cycle === 'yearly' ? Math.round(cost / 12) : cost;
+      document.getElementById('monthly-equivalent').textContent = '₹' + monthly.toLocaleString('en-IN');
+    }
+
+    function setupFormSubmission() {
+      const form = document.getElementById('subscription-form');
+      const submitBtn = document.getElementById('submit-btn');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const platform = document.getElementById('platform').value;
+        const cost = parseFloat(document.getElementById('cost').value);
+        const billingCycle = document.getElementById('billing-cycle').value;
+        const nextRenewal = document.getElementById('next-renewal').value;
+        const type = document.getElementById('subscription-type').value;
+        const paymentMethod = document.getElementById('payment-method').value;
+        const autoRenew = document.getElementById('auto-renew').value === 'true';
+
+        if (!platform || !cost || !nextRenewal) {
+          UI.showToast('Please fill in all required fields', 'error');
+          return;
+        }
+
+        UI.showLoading(submitBtn);
+
+        const subscription = {
+          id: DataStore.generateId(),
+          platform,
+          cost,
+          billingCycle,
+          nextRenewal: new Date(nextRenewal).toISOString(),
+          lastPayment: new Date().toISOString(),
+          startDate: new Date().toISOString(),
+          type,
+          paymentMethod,
+          autoRenew,
+          status: 'active',
+          lastUsed: new Date().toISOString(),
+          notifications: { renewal: true, unused: true }
+        };
+
+        DataStore.updateSubscriptionStatus(subscription);
+
+        const subscriptions = DataStore.getSubscriptions();
+        subscriptions.push(subscription);
+        DataStore.setSubscriptions(subscriptions);
+
+        setTimeout(() => {
+          document.getElementById('success-overlay').classList.add('show');
+        }, 500);
+      });
+    }
+  </script>
+</body>
+</html>

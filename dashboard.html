@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard – SubSmart</title>
+  <link rel="stylesheet" href="css/style.css?v=2">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      padding: 24px 16px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px;
+      margin-bottom: 32px;
+    }
+
+    .sidebar-logo-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--accent-gradient);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .sidebar-logo h2 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      transition: all var(--transition-normal);
+    }
+
+    .nav-item:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background: var(--accent-gradient);
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .nav-item-icon {
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      padding: 32px;
+      min-height: 100vh;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .header-left h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .header-left p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .notification-btn {
+      position: relative;
+      padding: 10px;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      transition: all var(--transition-normal);
+    }
+
+    .notification-btn:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      background: var(--danger);
+      border-radius: 50%;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      background: var(--accent-gradient);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .notification-panel {
+      position: absolute;
+      top: 70px;
+      right: 32px;
+      width: 360px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      display: none;
+      z-index: 200;
+      animation: scaleIn 0.2s ease;
+    }
+
+    .notification-panel.show {
+      display: block;
+    }
+
+    .notification-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .notification-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .notification-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .notification-item {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      transition: background var(--transition-fast);
+    }
+
+    .notification-item:hover {
+      background: var(--bg-card);
+    }
+
+    .notification-item:last-child {
+      border-bottom: none;
+    }
+
+    .notification-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .notification-icon.warning {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
+    .notification-icon.danger {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .notification-icon.info {
+      background: var(--info-bg);
+      color: var(--info);
+    }
+
+    .notification-content {
+      flex: 1;
+    }
+
+    .notification-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .notification-time {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .metric-card {
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--accent-gradient);
+    }
+
+    .metric-card.purple::before {
+      background: linear-gradient(90deg, #8b5cf6, #6366f1);
+    }
+
+    .metric-card.green::before {
+      background: linear-gradient(90deg, #10b981, #059669);
+    }
+
+    .metric-card.orange::before {
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+    }
+
+    .metric-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .metric-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .metric-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .metric-icon.purple {
+      background: rgba(139, 92, 246, 0.15);
+      color: #8b5cf6;
+    }
+
+    .metric-icon.green {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+    }
+
+    .metric-icon.orange {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+    }
+
+    .metric-value {
+      font-size: 36px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      margin-bottom: 4px;
+    }
+
+    .metric-value.text-gradient {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .metric-change {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .chart-card {
+      padding: 24px;
+    }
+
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .chart-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+      width: 100%;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+    
+    .chart-container canvas {
+      width: 100% !important;
+      height: 100% !important;
+      max-height: 268px;
+    }
+
+    .upcoming-section {
+      margin-bottom: 32px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .upcoming-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .upcoming-card {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: all var(--transition-normal);
+      cursor: pointer;
+    }
+
+    .upcoming-card:hover {
+      transform: translateX(4px);
+    }
+
+    .upcoming-info {
+      flex: 1;
+    }
+
+    .upcoming-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .upcoming-date {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .upcoming-countdown {
+      text-align: right;
+    }
+
+    .upcoming-countdown .days {
+      font-size: 24px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+    }
+
+    .upcoming-countdown .label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      padding: 8px 0;
+      z-index: 100;
+    }
+
+    .bottom-nav-items {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 500;
+      transition: color var(--transition-fast);
+    }
+
+    .bottom-nav-item.active {
+      color: var(--accent-primary);
+    }
+
+    .bottom-nav-item-icon {
+      font-size: 20px;
+    }
+
+    @media (max-width: 1024px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+        padding-bottom: 80px;
+      }
+
+      .bottom-nav {
+        display: block;
+      }
+
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .notification-panel {
+        right: 20px;
+        left: 20px;
+        width: auto;
+      }
+
+      .metric-value {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">S</div>
+        <h2>SubSmart</h2>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item active">
+          <span class="nav-item-icon">📊</span>
+          Dashboard
+        </a>
+        <a href="subscriptions.html" class="nav-item">
+          <span class="nav-item-icon">📋</span>
+          Subscriptions
+        </a>
+        <a href="add-subscription.html" class="nav-item">
+          <span class="nav-item-icon">➕</span>
+          Add New
+        </a>
+        <a href="insights.html" class="nav-item">
+          <span class="nav-item-icon">🧠</span>
+          AI Insights
+        </a>
+        <a href="calendar.html" class="nav-item">
+          <span class="nav-item-icon">📅</span>
+          Calendar
+        </a>
+        <a href="settings.html" class="nav-item">
+          <span class="nav-item-icon">⚙️</span>
+          Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="settings.html" class="nav-item">
+          <span class="nav-item-icon">👤</span>
+          Profile
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <div class="header-left">
+          <h1>Dashboard</h1>
+          <p>Welcome back! Here's your subscription overview</p>
+        </div>
+        <div class="header-right">
+          <button class="notification-btn" id="notification-btn">
+            🔔
+            <span class="notification-badge"></span>
+          </button>
+          <div class="user-avatar" id="user-avatar">DU</div>
+        </div>
+      </header>
+
+      <div class="notification-panel" id="notification-panel">
+        <div class="notification-header">
+          <h3>Notifications</h3>
+          <span class="text-muted text-sm">Mark all as read</span>
+        </div>
+        <div class="notification-list" id="notification-list">
+        </div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card glass-card purple animate-slide-up" style="animation-delay: 0ms">
+          <div class="metric-header">
+            <span class="metric-label">Monthly Spending</span>
+            <div class="metric-icon purple">💰</div>
+          </div>
+          <div class="metric-value text-gradient" id="monthly-spending">₹0</div>
+          <div class="metric-change">Total per month</div>
+        </div>
+
+        <div class="metric-card glass-card green animate-slide-up" style="animation-delay: 100ms">
+          <div class="metric-header">
+            <span class="metric-label">Yearly Spending</span>
+            <div class="metric-icon green">📈</div>
+          </div>
+          <div class="metric-value text-gradient" id="yearly-spending">₹0</div>
+          <div class="metric-change">Projected annual cost</div>
+        </div>
+
+        <div class="metric-card glass-card orange animate-slide-up" style="animation-delay: 200ms">
+          <div class="metric-header">
+            <span class="metric-label">Active Subscriptions</span>
+            <div class="metric-icon orange">📱</div>
+          </div>
+          <div class="metric-value text-gradient" id="active-count">0</div>
+          <div class="metric-change">Currently active</div>
+        </div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card glass-card animate-slide-up" style="animation-delay: 300ms">
+          <div class="chart-header">
+            <h3 class="chart-title">Monthly Spending Trend</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="monthlyChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card glass-card animate-slide-up" style="animation-delay: 400ms">
+          <div class="chart-header">
+            <h3 class="chart-title">Expense Distribution</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="expenseChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <section class="upcoming-section">
+        <div class="section-header">
+          <h2 class="section-title">Upcoming Renewals</h2>
+          <a href="calendar.html" class="btn btn-secondary btn-sm">View Calendar</a>
+        </div>
+        <div class="upcoming-list" id="upcoming-list">
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <div class="bottom-nav-items">
+        <a href="dashboard.html" class="bottom-nav-item active">
+          <span class="bottom-nav-item-icon">📊</span>
+          Dashboard
+        </a>
+        <a href="subscriptions.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">📋</span>
+          Subscriptions
+        </a>
+        <a href="add-subscription.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">➕</span>
+          Add
+        </a>
+        <a href="insights.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">🧠</span>
+          Insights
+        </a>
+        <a href="settings.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">⚙️</span>
+          Settings
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.requireAuth()) return;
+
+      const user = DataStore.getUser();
+      if (user) {
+        const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase() || user.email[0].toUpperCase();
+        document.getElementById('user-avatar').textContent = initials;
+      }
+
+      loadDashboardData();
+      initCharts();
+      loadNotifications();
+      setupNotificationPanel();
+    });
+
+    function loadDashboardData() {
+      const monthlySpending = DataStore.getTotalMonthlySpending();
+      const yearlySpending = DataStore.getTotalYearlySpending();
+      const activeCount = DataStore.getActiveSubscriptionsCount();
+
+      UI.animateCounter(document.getElementById('monthly-spending'), monthlySpending, 1000);
+      UI.animateCounter(document.getElementById('yearly-spending'), yearlySpending, 1200);
+      UI.animateCounter(document.getElementById('active-count'), activeCount, 800);
+
+      loadUpcomingRenewals();
+    }
+
+    function loadUpcomingRenewals() {
+      const upcoming = DataStore.getUpcomingRenewals(5);
+      const container = document.getElementById('upcoming-list');
+      
+      if (upcoming.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p class="text-secondary">No upcoming renewals</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = upcoming.map(sub => {
+        const daysRemaining = DataStore.getDaysRemaining(sub.nextRenewal);
+        const countdown = UI.formatCountdown(daysRemaining);
+        const platformInfo = UI.getPlatformInfo(sub.platform);
+        
+        return `
+          <a href="subscription-detail.html?id=${sub.id}" class="upcoming-card glass-card">
+            ${UI.createPlatformLogo(sub.platform)}
+            <div class="upcoming-info">
+              <div class="upcoming-name">${sub.platform}</div>
+              <div class="upcoming-date">${DataStore.formatDate(sub.nextRenewal)}</div>
+            </div>
+            <div class="upcoming-countdown">
+              <div class="days">${daysRemaining}</div>
+              <div class="label">days left</div>
+            </div>
+          </a>
+        `;
+      }).join('');
+    }
+
+    function initCharts() {
+      if (typeof Chart === 'undefined') {
+        console.error('Chart.js not loaded');
+        return;
+      }
+
+      const subscriptions = DataStore.getSubscriptions();
+      const monthlySpending = DataStore.getTotalMonthlySpending();
+      
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+      const monthlyDataFinal = [1247, 1247, 1746, 1746, 1746, monthlySpending];
+
+      const ctx1 = document.getElementById('monthlyChart').getContext('2d');
+      const gradient1 = ctx1.createLinearGradient(0, 0, 0, 280);
+      gradient1.addColorStop(0, 'rgba(99, 102, 241, 0.3)');
+      gradient1.addColorStop(1, 'rgba(99, 102, 241, 0)');
+
+      new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: months,
+          datasets: [{
+            label: 'Monthly Spending',
+            data: monthlyDataFinal,
+            backgroundColor: gradient1,
+            borderColor: '#6366f1',
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#12121a',
+              titleColor: '#fff',
+              bodyColor: '#94a3b8',
+              borderColor: 'rgba(255,255,255,0.1)',
+              borderWidth: 1,
+              padding: 12,
+              displayColors: false,
+              callbacks: {
+                label: (context) => '₹' + context.raw.toLocaleString('en-IN')
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#64748b' }
+            },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: {
+                color: '#64748b',
+                callback: (value) => '₹' + value
+              }
+            }
+          },
+          animation: {
+            duration: 1000,
+            easing: 'easeOutQuart'
+          }
+        }
+      });
+
+      const platformColors = subscriptions.map(s => UI.getPlatformInfo(s.platform).color);
+      const platformCosts = subscriptions.map(s => DataStore.getMonthlyEquivalent(s.cost, s.billingCycle));
+
+      const ctx2 = document.getElementById('expenseChart').getContext('2d');
+      new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: subscriptions.map(s => s.platform),
+          datasets: [{
+            data: platformCosts,
+            backgroundColor: platformColors,
+            borderWidth: 0,
+            hoverOffset: 10
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '70%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#94a3b8',
+                padding: 16,
+                usePointStyle: true,
+                font: { size: 12 }
+              }
+            },
+            tooltip: {
+              backgroundColor: '#12121a',
+              titleColor: '#fff',
+              bodyColor: '#94a3b8',
+              borderColor: 'rgba(255,255,255,0.1)',
+              borderWidth: 1,
+              padding: 12,
+              callbacks: {
+                label: (context) => {
+                  const value = context.raw;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = ((value / total) * 100).toFixed(1);
+                  return `₹${value.toLocaleString('en-IN')}/mo (${percentage}%)`;
+                }
+              }
+            }
+          },
+          animation: {
+            animateRotate: true,
+            duration: 1000
+          }
+        }
+      });
+    }
+
+    function loadNotifications() {
+      const subscriptions = DataStore.getSubscriptions();
+      const notifications = [];
+
+      subscriptions.forEach(sub => {
+        const daysRemaining = DataStore.getDaysRemaining(sub.nextRenewal);
+        
+        if (daysRemaining <= 3 && daysRemaining >= 0) {
+          notifications.push({
+            type: daysRemaining <= 1 ? 'danger' : 'warning',
+            icon: '🔔',
+            title: `${sub.platform} renews in ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''}`,
+            time: DataStore.formatDate(sub.nextRenewal)
+          });
+        }
+
+        const daysSinceUsed = DataStore.getDaysSince(sub.lastUsed);
+        if (daysSinceUsed > 30) {
+          notifications.push({
+            type: 'info',
+            icon: '⚠️',
+            title: `You haven't used ${sub.platform} in ${daysSinceUsed} days`,
+            time: `${daysSinceUsed} days ago`
+          });
+        }
+      });
+
+      const panel = document.getElementById('notification-panel');
+      const badge = document.querySelector('.notification-badge');
+      
+      if (notifications.length === 0) {
+        badge.style.display = 'none';
+        document.getElementById('notification-list').innerHTML = `
+          <div class="notification-item">
+            <div class="notification-content">
+              <div class="notification-title text-secondary">No new notifications</div>
+            </div>
+          </div>
+        `;
+      } else {
+        badge.style.display = 'block';
+        document.getElementById('notification-list').innerHTML = notifications.map(n => `
+          <div class="notification-item">
+            <div class="notification-icon ${n.type}">${n.icon}</div>
+            <div class="notification-content">
+              <div class="notification-title">${n.title}</div>
+              <div class="notification-time">${n.time}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function setupNotificationPanel() {
+      const btn = document.getElementById('notification-btn');
+      const panel = document.getElementById('notification-panel');
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        panel.classList.toggle('show');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!panel.contains(e.target) && e.target !== btn) {
+          panel.classList.remove('show');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

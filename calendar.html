@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar – SubSmart</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      padding: 24px 16px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px;
+      margin-bottom: 32px;
+    }
+
+    .sidebar-logo-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--accent-gradient);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .sidebar-logo h2 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      transition: all var(--transition-normal);
+    }
+
+    .nav-item:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background: var(--accent-gradient);
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .nav-item-icon {
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      padding: 32px;
+      min-height: 100vh;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .header p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .month-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .month-nav-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-normal);
+    }
+
+    .month-nav-btn:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+
+    .current-month {
+      font-size: 18px;
+      font-weight: 600;
+      min-width: 160px;
+      text-align: center;
+    }
+
+    .today-btn {
+      padding: 8px 16px;
+      background: var(--accent-gradient);
+      color: white;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      transition: all var(--transition-normal);
+    }
+
+    .today-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .calendar-container {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 24px;
+    }
+
+    .calendar-card {
+      padding: 24px;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .calendar-header {
+      text-align: center;
+      padding: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      position: relative;
+    }
+
+    .calendar-day:hover {
+      background: var(--bg-card);
+    }
+
+    .calendar-day.other-month {
+      color: var(--text-dim);
+    }
+
+    .calendar-day.today {
+      background: var(--accent-primary);
+      color: white;
+      font-weight: 700;
+    }
+
+    .calendar-day.has-event::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--platform-color, var(--accent-secondary));
+    }
+
+    .calendar-day.has-event.warning::after {
+      background: var(--warning);
+      animation: pulse 2s infinite;
+    }
+
+    .upcoming-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .upcoming-card {
+      padding: 20px;
+    }
+
+    .upcoming-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .upcoming-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .upcoming-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-normal);
+    }
+
+    .upcoming-item:hover {
+      background: var(--bg-card);
+      transform: translateX(4px);
+    }
+
+    .upcoming-item-info {
+      flex: 1;
+    }
+
+    .upcoming-item-name {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .upcoming-item-date {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .upcoming-days {
+      text-align: right;
+    }
+
+    .upcoming-days-value {
+      font-size: 18px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+
+    .upcoming-days-value.warning {
+      color: var(--warning);
+    }
+
+    .upcoming-days-value.danger {
+      color: var(--danger);
+    }
+
+    .upcoming-days-label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .legend {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .legend-title {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .legend-items {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      padding: 8px 0;
+      z-index: 100;
+    }
+
+    .bottom-nav-items {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .bottom-nav-item.active {
+      color: var(--accent-primary);
+    }
+
+    .bottom-nav-item-icon {
+      font-size: 20px;
+    }
+
+    @media (max-width: 1024px) {
+      .calendar-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+        padding-bottom: 80px;
+      }
+
+      .bottom-nav {
+        display: block;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .calendar-day {
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">S</div>
+        <h2>SubSmart</h2>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item">
+          <span class="nav-item-icon">📊</span>
+          Dashboard
+        </a>
+        <a href="subscriptions.html" class="nav-item">
+          <span class="nav-item-icon">📋</span>
+          Subscriptions
+        </a>
+        <a href="add-subscription.html" class="nav-item">
+          <span class="nav-item-icon">➕</span>
+          Add New
+        </a>
+        <a href="insights.html" class="nav-item">
+          <span class="nav-item-icon">🧠</span>
+          AI Insights
+        </a>
+        <a href="calendar.html" class="nav-item active">
+          <span class="nav-item-icon">📅</span>
+          Calendar
+        </a>
+        <a href="settings.html" class="nav-item">
+          <span class="nav-item-icon">⚙️</span>
+          Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="settings.html" class="nav-item">
+          <span class="nav-item-icon">👤</span>
+          Profile
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <div>
+          <h1>Renewal Calendar</h1>
+          <p>Track all your upcoming subscription renewals</p>
+        </div>
+        <div class="calendar-nav">
+          <div class="month-nav">
+            <button class="month-nav-btn" id="prev-month">←</button>
+            <span class="current-month" id="current-month">March 2026</span>
+            <button class="month-nav-btn" id="next-month">→</button>
+          </div>
+          <button class="today-btn" id="today-btn">Today</button>
+        </div>
+      </header>
+
+      <div class="calendar-container">
+        <div class="calendar-card glass-card">
+          <div class="calendar-grid" id="calendar-grid">
+            <div class="calendar-header">Sun</div>
+            <div class="calendar-header">Mon</div>
+            <div class="calendar-header">Tue</div>
+            <div class="calendar-header">Wed</div>
+            <div class="calendar-header">Thu</div>
+            <div class="calendar-header">Fri</div>
+            <div class="calendar-header">Sat</div>
+          </div>
+          <div class="legend">
+            <div class="legend-title">Platform Colors</div>
+            <div class="legend-items" id="legend-items">
+            </div>
+          </div>
+        </div>
+
+        <div class="upcoming-sidebar">
+          <div class="upcoming-card glass-card">
+            <h3 class="upcoming-title">⏰ Upcoming Renewals</h3>
+            <div class="upcoming-list" id="upcoming-list">
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <nav class="bottom-nav">
+      <div class="bottom-nav-items">
+        <a href="dashboard.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">📊</span>
+          Dashboard
+        </a>
+        <a href="subscriptions.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">📋</span>
+          Subscriptions
+        </a>
+        <a href="add-subscription.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">➕</span>
+          Add
+        </a>
+        <a href="insights.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">🧠</span>
+          Insights
+        </a>
+        <a href="settings.html" class="bottom-nav-item active">
+          <span class="bottom-nav-item-icon">⚙️</span>
+          Settings
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.requireAuth()) return;
+
+      let currentDate = new Date();
+      renderCalendar(currentDate);
+      setupNavigation();
+      renderLegend();
+    });
+
+    function renderCalendar(date) {
+      const subscriptions = DataStore.getSubscriptions();
+      const year = date.getFullYear();
+      const month = date.getMonth();
+
+      document.getElementById('current-month').textContent = 
+        date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startingDay = firstDay.getDay();
+      const totalDays = lastDay.getDate();
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const events = {};
+      subscriptions.forEach(sub => {
+        const renewalDate = new Date(sub.nextRenewal);
+        renewalDate.setHours(0, 0, 0, 0);
+        
+        if (renewalDate.getMonth() === month && renewalDate.getFullYear() === year) {
+          const dayKey = renewalDate.getDate();
+          if (!events[dayKey]) events[dayKey] = [];
+          events[dayKey].push(sub);
+        }
+
+        if (renewalDate.getMonth() === (month + 1) % 12 && 
+            (month === 11 ? renewalDate.getFullYear() === year + 1 : renewalDate.getFullYear() === year)) {
+          const dayKey = renewalDate.getDate();
+          if (!events[dayKey]) events[dayKey] = [];
+          events[dayKey].push(sub);
+        }
+      });
+
+      let calendarHTML = '';
+      for (let i = 0; i < startingDay; i++) {
+        const prevDate = new Date(year, month, -startingDay + i + 1);
+        calendarHTML += `<div class="calendar-day other-month">${prevDate.getDate()}</div>`;
+      }
+
+      for (let day = 1; day <= totalDays; day++) {
+        const currentDay = new Date(year, month, day);
+        currentDay.setHours(0, 0, 0, 0);
+        
+        const isToday = currentDay.getTime() === today.getTime();
+        const dayEvents = events[day] || [];
+        const hasEvent = dayEvents.length > 0;
+        const isWarning = dayEvents.some(e => DataStore.getDaysRemaining(e.nextRenewal) <= 3);
+
+        const platformColor = hasEvent ? UI.getPlatformInfo(dayEvents[0].platform).color : '';
+
+        calendarHTML += `
+          <div class="calendar-day ${isToday ? 'today' : ''} ${hasEvent ? 'has-event' : ''} ${isWarning ? 'warning' : ''}"
+               style="${hasEvent ? `--platform-color: ${platformColor}` : ''}"
+               data-day="${day}" data-month="${month}" data-year="${year}">
+            ${day}
+          </div>
+        `;
+      }
+
+      const remainingCells = 42 - (startingDay + totalDays);
+      for (let i = 1; i <= remainingCells; i++) {
+        calendarHTML += `<div class="calendar-day other-month">${i}</div>`;
+      }
+
+      const grid = document.getElementById('calendar-grid');
+      grid.innerHTML = grid.innerHTML.split('</div>').slice(0, 7).join('</div>') + '</div>' + calendarHTML;
+
+      document.querySelectorAll('.calendar-day.has-event').forEach(dayEl => {
+        dayEl.addEventListener('click', () => {
+          const day = dayEl.dataset.day;
+          const month = dayEl.dataset.month;
+          const year = dayEl.dataset.year;
+          const date = new Date(year, month, day);
+          
+          const dayEvents = events[parseInt(day)] || [];
+          if (dayEvents.length > 0) {
+            window.location.href = `subscription-detail.html?id=${dayEvents[0].id}`;
+          }
+        });
+      });
+
+      renderUpcomingList();
+    }
+
+    function renderUpcomingList() {
+      const upcoming = DataStore.getUpcomingRenewals(6);
+      const container = document.getElementById('upcoming-list');
+
+      if (upcoming.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="padding: 40px 20px">
+            <p class="text-secondary">No upcoming renewals</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = upcoming.map(sub => {
+        const daysRemaining = DataStore.getDaysRemaining(sub.nextRenewal);
+        const daysClass = daysRemaining <= 3 ? 'danger' : daysRemaining <= 7 ? 'warning' : '';
+
+        return `
+          <a href="subscription-detail.html?id=${sub.id}" class="upcoming-item">
+            ${UI.createPlatformLogo(sub.platform)}
+            <div class="upcoming-item-info">
+              <div class="upcoming-item-name">${sub.platform}</div>
+              <div class="upcoming-item-date">${DataStore.formatDateShort(sub.nextRenewal)}</div>
+            </div>
+            <div class="upcoming-days">
+              <div class="upcoming-days-value ${daysClass}">${daysRemaining}</div>
+              <div class="upcoming-days-label">days</div>
+            </div>
+          </a>
+        `;
+      }).join('');
+    }
+
+    function renderLegend() {
+      const subscriptions = DataStore.getSubscriptions();
+      const platforms = [...new Set(subscriptions.map(s => s.platform))];
+
+      const legendHTML = platforms.map(platform => {
+        const info = UI.getPlatformInfo(platform);
+        return `
+          <div class="legend-item">
+            <div class="legend-dot" style="background: ${info.color}"></div>
+            ${platform}
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('legend-items').innerHTML = legendHTML;
+    }
+
+    function setupNavigation() {
+      let currentDate = new Date();
+
+      document.getElementById('prev-month').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar(currentDate);
+      });
+
+      document.getElementById('next-month').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar(currentDate);
+      });
+
+      document.getElementById('today-btn').addEventListener('click', () => {
+        currentDate = new Date();
+        renderCalendar(currentDate);
+      });
+    }
+  </script>
+</body>
+</html>

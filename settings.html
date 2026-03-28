@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings – SubSmart</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      padding: 24px 16px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px;
+      margin-bottom: 32px;
+    }
+
+    .sidebar-logo-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--accent-gradient);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .sidebar-logo h2 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      transition: all var(--transition-normal);
+    }
+
+    .nav-item:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background: var(--accent-gradient);
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .nav-item-icon {
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      padding: 32px;
+      min-height: 100vh;
+    }
+
+    .header {
+      margin-bottom: 32px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .settings-container {
+      max-width: 720px;
+    }
+
+    .settings-section {
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .settings-card {
+      padding: 24px;
+    }
+
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 24px;
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      background: var(--accent-gradient);
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .profile-info {
+      flex: 1;
+    }
+
+    .profile-name {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .profile-email {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .profile-meta {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .settings-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .settings-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .settings-item:last-child {
+      border-bottom: none;
+    }
+
+    .item-content {
+      flex: 1;
+    }
+
+    .item-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .item-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .item-action {
+      margin-left: 24px;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: background var(--transition-normal);
+    }
+
+    .toggle-switch.active {
+      background: var(--accent-primary);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform var(--transition-normal);
+    }
+
+    .toggle-switch.active::after {
+      transform: translateX(22px);
+    }
+
+    .btn-outline {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--border-color-light);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      transition: all var(--transition-normal);
+    }
+
+    .btn-outline:hover {
+      background: var(--bg-card);
+      border-color: var(--accent-primary);
+      color: var(--text-primary);
+    }
+
+    .btn-danger-outline {
+      border-color: rgba(239, 68, 68, 0.3);
+      color: var(--danger);
+    }
+
+    .btn-danger-outline:hover {
+      background: var(--danger-bg);
+      border-color: var(--danger);
+    }
+
+    .info-box {
+      padding: 16px;
+      background: var(--info-bg);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: var(--radius-md);
+      margin-top: 24px;
+    }
+
+    .info-box-title {
+      font-weight: 600;
+      color: var(--info);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-box-content {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .danger-zone {
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .danger-zone .section-title {
+      color: var(--danger);
+    }
+
+    .bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      padding: 8px 0;
+      z-index: 100;
+    }
+
+    .bottom-nav-items {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .bottom-nav-item.active {
+      color: var(--accent-primary);
+    }
+
+    .bottom-nav-item-icon {
+      font-size: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+        padding-bottom: 80px;
+      }
+
+      .bottom-nav {
+        display: block;
+      }
+
+      .profile-section {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">S</div>
+        <h2>SubSmart</h2>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item">
+          <span class="nav-item-icon">📊</span>
+          Dashboard
+        </a>
+        <a href="subscriptions.html" class="nav-item">
+          <span class="nav-item-icon">📋</span>
+          Subscriptions
+        </a>
+        <a href="add-subscription.html" class="nav-item">
+          <span class="nav-item-icon">➕</span>
+          Add New
+        </a>
+        <a href="insights.html" class="nav-item">
+          <span class="nav-item-icon">🧠</span>
+          AI Insights
+        </a>
+        <a href="calendar.html" class="nav-item">
+          <span class="nav-item-icon">📅</span>
+          Calendar
+        </a>
+        <a href="settings.html" class="nav-item active">
+          <span class="nav-item-icon">⚙️</span>
+          Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="settings.html" class="nav-item">
+          <span class="nav-item-icon">👤</span>
+          Profile
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <h1>Settings</h1>
+        <p>Manage your account and preferences</p>
+      </header>
+
+      <div class="settings-container">
+        <section class="settings-section">
+          <h2 class="section-title">👤 Profile</h2>
+          <div class="settings-card glass-card">
+            <div class="profile-section" id="profile-section">
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h2 class="section-title">🔔 Notifications</h2>
+          <div class="settings-card glass-card">
+            <div class="settings-list">
+              <div class="settings-item">
+                <div class="item-content">
+                  <div class="item-title">Renewal Reminders</div>
+                  <div class="item-desc">Get notified before subscriptions renew</div>
+                </div>
+                <div class="item-action">
+                  <div class="toggle-switch active" id="toggle-renewal"></div>
+                </div>
+              </div>
+
+              <div class="settings-item">
+                <div class="item-content">
+                  <div class="item-title">Unused Subscription Alerts</div>
+                  <div class="item-desc">Alert when a subscription hasn't been used in 30 days</div>
+                </div>
+                <div class="item-action">
+                  <div class="toggle-switch active" id="toggle-unused"></div>
+                </div>
+              </div>
+
+              <div class="settings-item">
+                <div class="item-content">
+                  <div class="item-title">Price Change Notifications</div>
+                  <div class="item-desc">Get notified of subscription price changes</div>
+                </div>
+                <div class="item-action">
+                  <div class="toggle-switch" id="toggle-price"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h2 class="section-title">📱 Preferences</h2>
+          <div class="settings-card glass-card">
+            <div class="settings-list">
+              <div class="settings-item">
+                <div class="item-content">
+                  <div class="item-title">Currency</div>
+                  <div class="item-desc">Default currency for all prices</div>
+                </div>
+                <div class="item-action">
+                  <button class="btn-outline">₹ INR</button>
+                </div>
+              </div>
+
+              <div class="settings-item">
+                <div class="item-content">
+                  <div class="item-title">Date Format</div>
+                  <div class="item-desc">How dates are displayed</div>
+                </div>
+                <div class="item-action">
+                  <button class="btn-outline">DD MMM YYYY</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-box-title">
+              ℹ️ About SubSmart
+            </div>
+            <div class="info-box-content">
+              SubSmart helps you track, manage, and optimize your OTT subscriptions. 
+              Version 1.0.0 • All data is stored locally on your device.
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h2 class="section-title">⚠️ Danger Zone</h2>
+          <div class="settings-card glass-card danger-zone">
+            <div class="settings-list">
+              <div class="settings-item">
+                <div class="item-content">
+                  <div class="item-title">Clear All Data</div>
+                  <div class="item-desc">Remove all subscriptions and reset the app</div>
+                </div>
+                <div class="item-action">
+                  <button class="btn-outline btn-danger-outline" id="clear-data-btn">
+                    Clear Data
+                  </button>
+                </div>
+              </div>
+
+              <div class="settings-item">
+                <div class="item-content">
+                  <div class="item-title">Sign Out</div>
+                  <div class="item-desc">Log out of your account</div>
+                </div>
+                <div class="item-action">
+                  <button class="btn-outline btn-danger-outline" id="logout-btn">
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <nav class="bottom-nav">
+      <div class="bottom-nav-items">
+        <a href="dashboard.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">📊</span>
+          Dashboard
+        </a>
+        <a href="subscriptions.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">📋</span>
+          Subscriptions
+        </a>
+        <a href="add-subscription.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">➕</span>
+          Add
+        </a>
+        <a href="insights.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">🧠</span>
+          Insights
+        </a>
+        <a href="settings.html" class="bottom-nav-item active">
+          <span class="bottom-nav-item-icon">⚙️</span>
+          Settings
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.requireAuth()) return;
+
+      loadProfile();
+      setupToggles();
+      setupActions();
+    });
+
+    function loadProfile() {
+      const user = DataStore.getUser();
+      const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase() || user.email[0].toUpperCase();
+      const memberSince = new Date(user.createdAt).toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+
+      document.getElementById('profile-section').innerHTML = `
+        <div class="profile-avatar">${initials}</div>
+        <div class="profile-info">
+          <div class="profile-name">${user.name}</div>
+          <div class="profile-email">${user.email}</div>
+          <div class="profile-meta">Member since ${memberSince}</div>
+        </div>
+      `;
+    }
+
+    function setupToggles() {
+      const toggles = document.querySelectorAll('.toggle-switch');
+      toggles.forEach(toggle => {
+        toggle.addEventListener('click', () => {
+          toggle.classList.toggle('active');
+          const setting = toggle.id.replace('toggle-', '');
+          UI.showToast(
+            `${setting.charAt(0).toUpperCase() + setting.slice(1)} notifications ${toggle.classList.contains('active') ? 'enabled' : 'disabled'}`,
+            'success'
+          );
+        });
+      });
+    }
+
+    function setupActions() {
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        UI.confirmDelete(
+          'Sign Out',
+          'Are you sure you want to sign out?',
+          () => {
+            Auth.logout();
+          }
+        );
+      });
+
+      document.getElementById('clear-data-btn').addEventListener('click', () => {
+        UI.confirmDelete(
+          'Clear All Data',
+          'This will permanently delete all your subscriptions and reset the app. This action cannot be undone.',
+          () => {
+            localStorage.clear();
+            DataStore.getDemoData();
+            UI.showToast('All data has been cleared', 'success');
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          }
+        );
+      });
+    }
+  </script>
+</body>
+</html>

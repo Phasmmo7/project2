@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Insights – SubSmart</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      padding: 24px 16px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 8px;
+      margin-bottom: 32px;
+    }
+
+    .sidebar-logo-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--accent-gradient);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .sidebar-logo h2 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      transition: all var(--transition-normal);
+    }
+
+    .nav-item:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background: var(--accent-gradient);
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .nav-item-icon {
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      padding: 32px;
+      min-height: 100vh;
+    }
+
+    .header {
+      margin-bottom: 32px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .insight-card {
+      padding: 24px;
+      text-align: center;
+    }
+
+    .insight-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 16px;
+    }
+
+    .insight-icon.purple {
+      background: rgba(139, 92, 246, 0.15);
+    }
+
+    .insight-icon.green {
+      background: rgba(16, 185, 129, 0.15);
+    }
+
+    .insight-icon.orange {
+      background: rgba(245, 158, 11, 0.15);
+    }
+
+    .insight-value {
+      font-size: 36px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      margin-bottom: 4px;
+    }
+
+    .insight-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .section {
+      margin-bottom: 32px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .subscription-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .subscription-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+      transition: all var(--transition-normal);
+      cursor: pointer;
+    }
+
+    .subscription-item:hover {
+      transform: translateX(4px);
+    }
+
+    .item-info {
+      flex: 1;
+    }
+
+    .item-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .item-meta {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .item-savings {
+      text-align: right;
+    }
+
+    .savings-value {
+      font-size: 18px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--success);
+    }
+
+    .savings-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .analysis-card {
+      padding: 24px;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .analysis-item {
+      padding: 20px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+    }
+
+    .analysis-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .analysis-title {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .analysis-value {
+      font-size: 24px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+
+    .tip-card {
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: var(--radius-md);
+      margin-top: 24px;
+    }
+
+    .tip-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .tip-icon {
+      font-size: 24px;
+    }
+
+    .tip-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .tip-content {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .unused-warning {
+      background: var(--warning-bg);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .unused-warning .tip-icon {
+      color: var(--warning);
+    }
+
+    .bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      padding: 8px 0;
+      z-index: 100;
+    }
+
+    .bottom-nav-items {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .bottom-nav-item.active {
+      color: var(--accent-primary);
+    }
+
+    .bottom-nav-item-icon {
+      font-size: 20px;
+    }
+
+    @media (max-width: 1024px) {
+      .insights-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .analysis-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+        padding-bottom: 80px;
+      }
+
+      .bottom-nav {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">S</div>
+        <h2>SubSmart</h2>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item">
+          <span class="nav-item-icon">📊</span>
+          Dashboard
+        </a>
+        <a href="subscriptions.html" class="nav-item">
+          <span class="nav-item-icon">📋</span>
+          Subscriptions
+        </a>
+        <a href="add-subscription.html" class="nav-item">
+          <span class="nav-item-icon">➕</span>
+          Add New
+        </a>
+        <a href="insights.html" class="nav-item active">
+          <span class="nav-item-icon">🧠</span>
+          AI Insights
+        </a>
+        <a href="calendar.html" class="nav-item">
+          <span class="nav-item-icon">📅</span>
+          Calendar
+        </a>
+        <a href="settings.html" class="nav-item">
+          <span class="nav-item-icon">⚙️</span>
+          Settings
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="settings.html" class="nav-item">
+          <span class="nav-item-icon">👤</span>
+          Profile
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <h1>AI Insights</h1>
+        <p>Smart analysis of your subscription habits</p>
+      </header>
+
+      <div class="insights-grid">
+        <div class="insight-card glass-card animate-slide-up">
+          <div class="insight-icon purple">💰</div>
+          <div class="insight-value" id="total-monthly">₹0</div>
+          <div class="insight-label">Monthly Spending</div>
+        </div>
+
+        <div class="insight-card glass-card animate-slide-up" style="animation-delay: 100ms">
+          <div class="insight-icon green">📈</div>
+          <div class="insight-value" id="potential-savings">₹0</div>
+          <div class="insight-label">Potential Savings</div>
+        </div>
+
+        <div class="insight-card glass-card animate-slide-up" style="animation-delay: 200ms">
+          <div class="insight-icon orange">⚠️</div>
+          <div class="insight-value" id="unused-count">0</div>
+          <div class="insight-label">Unused Subscriptions</div>
+        </div>
+      </div>
+
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">💡 Smart Recommendations</h2>
+        </div>
+        <div class="subscription-list" id="recommendations-list">
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">📊 Spending Analysis</h2>
+        </div>
+        <div class="analysis-card glass-card">
+          <div class="analysis-grid">
+            <div class="analysis-item">
+              <div class="analysis-icon">📅</div>
+              <div class="analysis-title">Average per Subscription</div>
+              <div class="analysis-value" id="avg-per-sub">₹0</div>
+            </div>
+            <div class="analysis-item">
+              <div class="analysis-icon">🎯</div>
+              <div class="analysis-title">Most Expensive</div>
+              <div class="analysis-value" id="most-expensive">-</div>
+            </div>
+            <div class="analysis-item">
+              <div class="analysis-icon">🏷️</div>
+              <div class="analysis-title">Best Value</div>
+              <div class="analysis-value" id="best-value">-</div>
+            </div>
+            <div class="analysis-item">
+              <div class="analysis-icon">📆</div>
+              <div class="analysis-title">Yearly Projection</div>
+              <div class="analysis-value" id="yearly-projection">₹0</div>
+            </div>
+          </div>
+
+          <div class="tip-card">
+            <div class="tip-header">
+              <span class="tip-icon">💡</span>
+              <span class="tip-title">Pro Tip</span>
+            </div>
+            <p class="tip-content" id="pro-tip">
+              Reviewing your subscriptions monthly can help you identify services you no longer use and save money.
+            </p>
+          </div>
+
+          <div class="tip-card unused-warning" id="unused-warning" style="display: none; margin-top: 16px;">
+            <div class="tip-header">
+              <span class="tip-icon">⚠️</span>
+              <span class="tip-title">Attention Needed</span>
+            </div>
+            <p class="tip-content" id="unused-message">
+              You have unused subscriptions that haven't been used in over 30 days. Consider cancelling them to save money.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <div class="bottom-nav-items">
+        <a href="dashboard.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">📊</span>
+          Dashboard
+        </a>
+        <a href="subscriptions.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">📋</span>
+          Subscriptions
+        </a>
+        <a href="add-subscription.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">➕</span>
+          Add
+        </a>
+        <a href="insights.html" class="bottom-nav-item active">
+          <span class="bottom-nav-item-icon">🧠</span>
+          Insights
+        </a>
+        <a href="settings.html" class="bottom-nav-item">
+          <span class="bottom-nav-item-icon">⚙️</span>
+          Settings
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.requireAuth()) return;
+
+      loadInsights();
+    });
+
+    function loadInsights() {
+      const subscriptions = DataStore.getSubscriptions().filter(s => s.status !== 'expired');
+      const totalMonthly = DataStore.getTotalMonthlySpending();
+      const totalYearly = DataStore.getTotalYearlySpending();
+      const unusedSubs = DataStore.getUnusedSubscriptions();
+      const activeCount = subscriptions.length;
+
+      UI.animateCounter(document.getElementById('total-monthly'), totalMonthly, 1000);
+
+      const potentialSavings = unusedSubs.reduce((sum, sub) => {
+        return sum + (DataStore.getMonthlyEquivalent(sub.cost, sub.billingCycle) * 12);
+      }, 0);
+      UI.animateCounter(document.getElementById('potential-savings'), potentialSavings, 1000);
+
+      document.getElementById('unused-count').textContent = unusedSubs.length;
+
+      const avgPerSub = activeCount > 0 ? Math.round(totalMonthly / activeCount) : 0;
+      document.getElementById('avg-per-sub').textContent = DataStore.formatCurrency(avgPerSub);
+
+      const sortedByMonthly = [...subscriptions]
+        .map(s => ({ ...s, monthly: DataStore.getMonthlyEquivalent(s.cost, s.billingCycle) }))
+        .sort((a, b) => b.monthly - a.monthly);
+
+      if (sortedByMonthly.length > 0) {
+        document.getElementById('most-expensive').textContent = sortedByMonthly[0].platform;
+        
+        const cheapestWithHighValue = sortedByMonthly
+          .filter(s => DataStore.getDaysSince(s.lastUsed) <= 14)
+          .sort((a, b) => a.monthly - b.monthly)[0];
+        
+        if (cheapestWithHighValue) {
+          document.getElementById('best-value').textContent = cheapestWithHighValue.platform;
+        }
+      }
+
+      document.getElementById('yearly-projection').textContent = DataStore.formatCurrency(totalYearly);
+
+      renderRecommendations(subscriptions, unusedSubs);
+      generateProTip(subscriptions, unusedSubs, totalMonthly);
+
+      if (unusedSubs.length > 0) {
+        document.getElementById('unused-warning').style.display = 'block';
+        document.getElementById('unused-message').textContent = 
+          `You have ${unusedSubs.length} unused subscription${unusedSubs.length > 1 ? 's' : ''} that haven't been used in over 30 days. Consider cancelling them to save ${DataStore.formatCurrency(potentialSavings)}/year.`;
+      }
+    }
+
+    function renderRecommendations(subscriptions, unusedSubs) {
+      const container = document.getElementById('recommendations-list');
+
+      if (subscriptions.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p class="text-secondary">No subscriptions to analyze</p>
+          </div>
+        `;
+        return;
+      }
+
+      const recommendations = subscriptions.map(sub => {
+        const daysSinceUsed = DataStore.getDaysSince(sub.lastUsed);
+        const yearlyCost = DataStore.getMonthlyEquivalent(sub.cost, sub.billingCycle) * 12;
+        const daysRemaining = DataStore.getDaysRemaining(sub.nextRenewal);
+
+        let priority = 0;
+        let reason = '';
+
+        if (daysSinceUsed > 45) {
+          priority = 3;
+          reason = `Unused for ${daysSinceUsed} days`;
+        } else if (daysSinceUsed > 30) {
+          priority = 2;
+          reason = `Unused for ${daysSinceUsed} days`;
+        } else if (daysRemaining <= 3) {
+          priority = 1;
+          reason = 'Renewing soon';
+        } else {
+          priority = 0;
+          reason = 'Active & healthy';
+        }
+
+        return { ...sub, priority, reason, yearlyCost, daysSinceUsed };
+      }).sort((a, b) => b.priority - a.priority);
+
+      container.innerHTML = recommendations.map(sub => {
+        const platformInfo = UI.getPlatformInfo(sub.platform);
+        const isUnused = sub.daysSinceUsed > 30;
+
+        return `
+          <a href="subscription-detail.html?id=${sub.id}" class="subscription-item glass-card">
+            ${UI.createPlatformLogo(sub.platform)}
+            <div class="item-info">
+              <div class="item-name">${sub.platform}</div>
+              <div class="item-meta">
+                ${sub.reason} • ${DataStore.formatCurrency(sub.cost)}/${sub.billingCycle === 'monthly' ? 'mo' : 'yr'}
+              </div>
+            </div>
+            ${isUnused ? `
+              <div class="item-savings">
+                <div class="savings-value">${DataStore.formatCurrency(sub.yearlyCost)}</div>
+                <div class="savings-label">yearly savings</div>
+              </div>
+            ` : `
+              <span class="badge badge-success">✓ Healthy</span>
+            `}
+          </a>
+        `;
+      }).join('');
+    }
+
+    function generateProTip(subscriptions, unusedSubs, totalMonthly) {
+      let tip = '';
+
+      if (totalMonthly > 2000) {
+        tip = 'Your monthly spending is relatively high. Consider bundling services or cancelling unused subscriptions to optimize costs.';
+      } else if (unusedSubs.length > 0) {
+        tip = `You have ${unusedSubs.length} subscription${unusedSubs.length > 1 ? 's' : ''} that appear unused. Reviewing them could save you money.`;
+      } else if (subscriptions.length >= 5) {
+        tip = 'You\'re managing multiple subscriptions well! Consider annual billing for additional savings where available.';
+      } else {
+        tip = 'Your subscription portfolio looks healthy. Keep monitoring usage to ensure you\'re getting value from each service.';
+      }
+
+      document.getElementById('pro-tip').textContent = tip;
+    }
+  </script>
+</body>
+</html>
