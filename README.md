@@ -127,16 +127,7 @@ SubSmart provides:
 
 ---
 
-## 📸 Screenshots (Add Here)
 
-> Add your app screenshots to make the repo look premium
-
-* Login Page
-* Dashboard
-* Subscription Details
-* Insights Page
-
----
 
 ## 🎤 Pitch
 
